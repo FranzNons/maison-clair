@@ -1,0 +1,571 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Propuesta de Servicios — Maison Clair</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Jost:wght@200;300;400;500;600;700&display=swap');
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --white: #FFFFFF;
+    --off-white: #F8F7F5;
+    --pearl: #F2F0F2;
+    --pink:  #dfc1c7;
+    --mauve: #d5b3c5;
+    --aqua:  #83e7ec;
+    --green: #81cc83;
+    --ink: #111111;
+    --muted: #888888;
+    --line: rgba(17,17,17,0.10);
+    --line-light: rgba(17,17,17,0.06);
+  }
+
+  body { font-family: 'Jost', sans-serif; background: var(--white); overflow: hidden; height: 100vh; width: 100%; color: var(--ink); }
+
+  .deck { width: 100%; height: 100vh; position: relative; overflow: hidden; }
+
+  .slide { position: absolute; inset: 0; opacity: 0; pointer-events: none; transition: opacity 0.5s ease; padding: 2.8rem 3.5rem 5rem; display: flex; flex-direction: column; }
+  .slide.active { opacity: 1; pointer-events: all; }
+
+  @keyframes opal-flow {
+    0%   { background-position: 0% 50%; }
+    50%  { background-position: 100% 50%; }
+    100% { background-position: 0% 50%; }
+  }
+
+  .opal-text {
+    background: linear-gradient(90deg, var(--pink) 0%, var(--mauve) 30%, var(--aqua) 65%, var(--green) 100%);
+    -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  }
+  .opal-bar { height: 2px; width: 2.8rem; background: linear-gradient(90deg, var(--pink), var(--mauve), var(--aqua), var(--green)); }
+
+  .lbl { font-size: 0.58rem; font-weight: 500; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.4rem; }
+
+  /* NAV */
+  .nav { position: fixed; bottom: 1.4rem; left: 50%; transform: translateX(-50%); display: flex; align-items: center; gap: 0.5rem; z-index: 100; background: rgba(255,255,255,0.9); backdrop-filter: blur(10px); padding: 0.4rem 1rem; border-radius: 99px; border: 1px solid var(--line); }
+  #dots { display: flex; align-items: center; gap: 0.45rem; }
+  .nav-dot { width: 6px; height: 6px; border-radius: 50%; background: #ccc; cursor: pointer; transition: all 0.3s; }
+  .nav-dot.active { background: linear-gradient(135deg, var(--pink), var(--mauve), var(--aqua), var(--green)); transform: scale(1.5); }
+  .nav-btn { background: none; border: none; color: var(--muted); cursor: pointer; font-family: 'Jost', sans-serif; font-size: 0.68rem; font-weight: 400; letter-spacing: 0.08em; padding: 0.12rem 0.3rem; transition: color 0.2s; }
+  .nav-btn:hover { color: var(--ink); }
+
+  /* TABS */
+  .tabs { position: fixed; top: 1.4rem; right: 2rem; display: flex; gap: 0.35rem; z-index: 100; }
+  .tab { font-family: 'Jost', sans-serif; font-size: 0.56rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.32rem 0.8rem; border-radius: 99px; cursor: pointer; border: 1px solid transparent; color: var(--muted); background: transparent; transition: all 0.25s; }
+  .tab:hover { color: var(--ink); }
+  .tab.active { background: var(--ink); color: #fff; border-color: var(--ink); }
+
+  /* OPAL HOVER BUTTONS */
+  .btn-opal { font-size: 0.62rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); border: 1px solid var(--ink); padding: 0.6rem 1.4rem; cursor: pointer; background: none; font-family: 'Jost', sans-serif; transition: border-color 0.3s, color 0.3s; position: relative; overflow: hidden; }
+  .btn-opal::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, #dfc1c7, #d5b3c5, #83e7ec, #81cc83, #dfc1c7, #d5b3c5); background-size: 300% 300%; opacity: 0; transition: opacity 0.35s; animation: opal-flow 3s ease infinite; }
+  .btn-opal:hover::before { opacity: 1; }
+  .btn-opal:hover { color: #fff; border-color: transparent; }
+  .btn-opal span { position: relative; z-index: 1; }
+
+  /* PILLS */
+  .pill { font-size: 0.6rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; padding: 0.42rem 1.1rem; border: 1px solid var(--ink); cursor: pointer; background: none; font-family: 'Jost', sans-serif; color: var(--ink); border-radius: 2px; position: relative; overflow: hidden; transition: border-color 0.3s, color 0.3s; }
+  .pill::before { content: ''; position: absolute; inset: 0; background: linear-gradient(135deg, #dfc1c7, #d5b3c5, #83e7ec, #81cc83, #dfc1c7, #d5b3c5); background-size: 300% 300%; opacity: 0; transition: opacity 0.35s; animation: opal-flow 3s ease infinite; }
+  .pill:hover::before, .pill.on::before { opacity: 1; }
+  .pill:hover, .pill.on { color: #fff; border-color: transparent; }
+  .pill span { position: relative; z-index: 1; }
+
+  /* BADGE — opal bg, dark text */
+  .badge { font-size: 0.56rem; font-weight: 600; letter-spacing: 0.08em; text-transform: uppercase; padding: 0.22rem 0.6rem; border-radius: 99px; background: linear-gradient(90deg, var(--pink), var(--mauve), var(--aqua), var(--green)); color: var(--ink); white-space: nowrap; }
+
+  /* ─── S0: PORTADA ─── */
+  #s0 { background: var(--white); justify-content: flex-end; padding-bottom: 3.8rem; }
+  .cover-deco { position: absolute; top: 0; right: 0; width: 42%; height: 100%; background: linear-gradient(135deg, rgba(223,193,199,0.14) 0%, rgba(213,179,197,0.14) 30%, rgba(131,231,236,0.14) 65%, rgba(129,204,131,0.14) 100%); clip-path: polygon(12% 0%, 100% 0%, 100% 100%, 0% 100%); }
+  .cover-rule { position: absolute; top: 0; left: 3.5rem; width: 1px; height: 100%; background: linear-gradient(to bottom, transparent, var(--line) 20%, var(--line) 80%, transparent); }
+  .cover-eyebrow { position: absolute; top: 2.4rem; left: 3.5rem; font-size: 0.58rem; font-weight: 500; letter-spacing: 0.28em; text-transform: uppercase; color: var(--muted); }
+  .logo-img { height: 5.5rem; width: auto; margin-bottom: 1.2rem; display: block; }
+  .cover-tag { font-size: 0.58rem; font-weight: 400; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.8rem; }
+  .cover-sub { font-size: clamp(1.6rem, 3.2vw, 2.8rem); font-weight: 200; line-height: 1.05; color: var(--muted); margin-bottom: 0.3rem; letter-spacing: 0.01em; }
+  .cover-slogan { font-size: clamp(0.7rem, 1.2vw, 0.95rem); font-weight: 300; letter-spacing: 0.22em; text-transform: uppercase; color: #bbb; margin-bottom: 2rem; }
+  .cover-meta { display: flex; gap: 2.5rem; align-items: flex-end; }
+  .cover-info { display: flex; flex-direction: column; gap: 0.18rem; padding-bottom: 0.15rem; }
+  .cover-info span { font-size: 0.58rem; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .cover-info strong { font-size: 0.68rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink); font-weight: 600; }
+
+  /* ─── S1 SETUP INTRO ─── */
+  #s1 { background: var(--ink); color: #fff; justify-content: space-between; }
+  .s1-big { font-size: clamp(3.8rem,8.5vw,7.5rem); font-weight: 200; line-height: 0.88; color: #fff; }
+  .s1-price { font-size: clamp(1rem,1.8vw,1.5rem); font-weight: 300; color: #aaa; margin-top: 0.3rem; }
+  .s1-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 2rem; }
+  .s1-col { border-top: 1px solid rgba(255,255,255,0.1); padding-top: 1.1rem; }
+  .s1-col-title { font-size: 0.72rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; color: #fff; margin-bottom: 0.55rem; }
+  .s1-col-body { font-size: 0.73rem; font-weight: 300; line-height: 1.65; color: #777; }
+
+  /* ─── S2 SETUP DETALLE ─── */
+  #s2 { background: var(--off-white); justify-content: space-between; }
+  .s2-grid { display: grid; grid-template-columns: repeat(3,1fr); gap: 2.2rem; flex: 1; margin-top: 1.3rem; align-items: start; }
+  .s2-col { display: flex; flex-direction: column; }
+  .s2-col-title { font-size: 0.6rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink); padding-bottom: 0.6rem; border-bottom: 1.5px solid var(--ink); }
+  .s2-item { padding: 0.6rem 0; border-bottom: 1px solid var(--line-light); }
+  .s2-item-title { font-size: 0.73rem; font-weight: 500; color: var(--ink); margin-bottom: 0.12rem; }
+  .s2-item-desc { font-size: 0.66rem; font-weight: 300; color: var(--muted); line-height: 1.5; }
+  .s2-footer { grid-column: 1/-1; border-top: 1px solid var(--line); padding-top: 1rem; display: flex; justify-content: space-between; align-items: baseline; }
+  .s2-footer-label { font-size: 0.6rem; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  .s2-footer-note { font-size: 0.6rem; font-weight: 300; color: var(--muted); margin-top: 0.15rem; }
+  .s2-footer-price { font-size: 1.9rem; font-weight: 300; color: var(--ink); }
+
+  /* ─── S3 CALENDARIO ─── */
+  #s3 { background: var(--white); justify-content: space-between; }
+  .cal-header { display: flex; justify-content: space-between; align-items: baseline; }
+  .cal-title { font-size: clamp(2rem,4vw,3.5rem); font-weight: 200; line-height: 1; color: var(--ink); }
+  .cal-note { font-size: 0.62rem; font-weight: 300; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); padding: 0.3rem 0.8rem; border-radius: 99px; }
+  .cal-timeline { display: grid; grid-template-columns: 1fr 1.5fr 1fr 1.2fr; gap: 0; flex: 1; margin-top: 1.8rem; align-items: start; position: relative; }
+  .cal-connector { position: absolute; top: 0.9rem; left: 0; width: 75%; height: 1px; background: var(--line); z-index: 0; }
+  .cal-opal-connector { position: absolute; top: 0.9rem; left: 75%; right: 0; height: 1px; background: linear-gradient(90deg, var(--pink), var(--mauve), var(--aqua), var(--green)); z-index: 0; }
+  .cal-phase { display: flex; flex-direction: column; padding-right: 1.5rem; position: relative; z-index: 1; }
+  .cal-phase:last-child { padding-right: 0; }
+  .cal-dot { width: 10px; height: 10px; border-radius: 50%; background: var(--ink); margin-bottom: 1rem; flex-shrink: 0; }
+  .cal-dot-opal { background: linear-gradient(135deg, var(--pink), var(--mauve), var(--aqua), var(--green)); }
+  .cal-week { font-size: 0.56rem; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; color: var(--muted); margin-bottom: 0.5rem; }
+  .cal-week-opal { font-size: 0.56rem; font-weight: 500; letter-spacing: 0.16em; text-transform: uppercase; background: linear-gradient(90deg, var(--pink), var(--mauve), var(--aqua), var(--green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; margin-bottom: 0.5rem; }
+  .cal-phase-title { font-size: 1.25rem; font-weight: 200; line-height: 1.1; color: var(--ink); margin-bottom: 0.9rem; }
+  .cal-phase-title-opal { font-size: 1.25rem; font-weight: 200; line-height: 1.1; margin-bottom: 0.9rem; background: linear-gradient(90deg, var(--pink), var(--mauve), var(--aqua), var(--green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .cal-items { display: flex; flex-direction: column; }
+  .cal-item { font-size: 0.68rem; font-weight: 300; color: var(--muted); line-height: 1.5; padding: 0.35rem 0; border-bottom: 1px solid var(--line-light); display: flex; align-items: baseline; gap: 0.45rem; }
+  .cal-item::before { content: "—"; font-size: 0.55rem; color: #ccc; flex-shrink: 0; }
+  .cal-item-opal { font-size: 0.68rem; font-weight: 300; line-height: 1.5; padding: 0.35rem 0; border-bottom: 1px solid rgba(131,231,236,0.2); display: flex; align-items: baseline; gap: 0.45rem; background: linear-gradient(90deg, var(--pink), var(--mauve), var(--aqua)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .cal-item-opal::before { content: "—"; font-size: 0.55rem; flex-shrink: 0; background: linear-gradient(90deg, var(--pink), var(--aqua)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .cal-footer { display: flex; align-items: center; gap: 0.6rem; padding-top: 1.2rem; border-top: 1px solid var(--line-light); }
+  .cal-footer-dot { width: 5px; height: 5px; border-radius: 50%; background: var(--muted); }
+  .cal-footer-text { font-size: 0.62rem; font-weight: 300; color: var(--muted); letter-spacing: 0.06em; }
+
+  /* ─── S4 IGUALA INTRO ─── */
+  #s4 { background: var(--white); justify-content: space-between; }
+  .s4-header { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 0.4rem; }
+  .s4-big { font-size: clamp(3.8rem,8vw,7rem); font-weight: 200; line-height: 0.88; color: var(--ink); }
+  .s4-intro { max-width: 300px; font-size: 0.76rem; font-weight: 300; line-height: 1.72; color: var(--muted); padding-bottom: 0.5rem; }
+  .s4-pills { display: flex; gap: 0.7rem; margin-top: 2rem; flex-wrap: wrap; }
+
+  /* ─── S5 MANTENIMIENTO WEB ─── */
+  #s5 { background: var(--pearl); justify-content: space-between; }
+  .two-col { display: grid; grid-template-columns: 1fr 1.3fr; gap: 3rem; flex: 1; margin-top: 1.3rem; align-items: start; }
+  .col-left { display: flex; flex-direction: column; gap: 1.1rem; }
+  .col-right { display: flex; flex-direction: column; }
+  .big-title { font-size: clamp(2.8rem,5.5vw,5rem); font-weight: 200; line-height: 0.88; color: var(--ink); }
+  .sec-desc { font-size: 0.75rem; font-weight: 300; line-height: 1.65; color: var(--muted); max-width: 260px; }
+  .hrs-box { padding: 0.9rem 1.1rem; border: 1px solid var(--line); display: flex; justify-content: space-between; align-items: baseline; }
+  .hrs-box-label { font-size: 0.56rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  .hrs-box-num { font-size: 1.9rem; font-weight: 200; color: var(--ink); }
+  .hrs-box-note { font-size: 0.62rem; font-weight: 300; color: var(--muted); max-width: 110px; text-align: right; line-height: 1.5; }
+  .steps { display: flex; flex-direction: column; }
+  .step { display: flex; gap: 0.9rem; padding: 0.7rem 0; border-bottom: 1px solid var(--line-light); align-items: flex-start; }
+  .step-num { font-size: 0.56rem; font-weight: 500; letter-spacing: 0.1em; color: var(--muted); min-width: 1.1rem; padding-top: 0.1rem; }
+  .step-title { font-size: 0.75rem; font-weight: 500; color: var(--ink); }
+  .step-desc { font-size: 0.65rem; font-weight: 300; color: var(--muted); line-height: 1.45; margin-top: 0.1rem; }
+
+  /* ─── S6 CONTENIDO REDES ─── */
+  #s6 { background: var(--white); justify-content: space-between; }
+  .content-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; flex: 1; margin-top: 1.3rem; align-items: start; }
+  .content-col { display: flex; flex-direction: column; }
+  .content-col-label { font-size: 0.58rem; font-weight: 600; letter-spacing: 0.18em; text-transform: uppercase; color: var(--muted); padding-bottom: 0.65rem; border-bottom: 1.5px solid var(--line); }
+  .c-row { display: flex; justify-content: space-between; align-items: center; padding: 0.7rem 0; border-bottom: 1px solid var(--line-light); }
+  .c-row-left { display: flex; flex-direction: column; gap: 0.07rem; }
+  .c-name { font-size: 0.75rem; font-weight: 500; color: var(--ink); }
+  .c-detail { font-size: 0.63rem; font-weight: 300; color: var(--muted); }
+  .note-block { margin-top: 1.2rem; padding: 0.9rem 1.1rem; background: var(--ink); display: flex; justify-content: space-between; align-items: center; gap: 1rem; }
+  .note-block-title { font-size: 0.68rem; font-weight: 500; letter-spacing: 0.1em; text-transform: uppercase; color: #fff; }
+  .note-block-desc { font-size: 0.63rem; font-weight: 300; color: #777; line-height: 1.4; }
+  .note-block-tag { font-size: 0.62rem; font-weight: 400; color: #666; white-space: nowrap; text-align: right; }
+
+  /* ─── S7 RESUMEN ─── */
+  #s7 { background: var(--ink); color: #fff; justify-content: space-between; }
+  .r-grid { display: grid; grid-template-columns: repeat(2,1fr); gap: 2.5rem; flex: 1; margin-top: 1.3rem; align-items: start; }
+  .r-col { display: flex; flex-direction: column; }
+  .r-col-label { font-size: 0.56rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: #555; padding-bottom: 0.55rem; border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .r-row { display: flex; justify-content: space-between; align-items: baseline; padding: 0.55rem 0; border-bottom: 1px solid rgba(255,255,255,0.05); gap: 0.8rem; }
+  .r-svc { font-size: 0.7rem; font-weight: 300; color: rgba(255,255,255,0.55); line-height: 1.4; }
+  .r-price { font-size: 0.92rem; font-weight: 400; color: #fff; white-space: nowrap; }
+  .r-subtotal { display: flex; justify-content: space-between; align-items: baseline; margin-top: 0.5rem; padding-top: 0.7rem; border-top: 1px solid rgba(255,255,255,0.12); gap: 0.8rem; }
+  .r-subtotal-label { font-size: 0.68rem; font-weight: 400; color: rgba(255,255,255,0.85); }
+  .r-subtotal-price { font-size: 1.4rem; font-weight: 300; color: #fff; }
+  .r-bottom { grid-column: 1/-1; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 1.1rem; display: flex; justify-content: space-between; align-items: flex-end; gap: 2rem; }
+  .r-bottom-note { font-size: 0.66rem; font-weight: 300; color: #666; max-width: 420px; line-height: 1.65; }
+  .r-bottom-note .hl { background: linear-gradient(90deg, var(--pink), var(--mauve), var(--aqua), var(--green)); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; font-weight: 500; }
+  .r-inv-block { text-align: right; }
+  .r-inv-lbl { font-size: 0.52rem; letter-spacing: 0.16em; text-transform: uppercase; color: #555; margin-bottom: 0.2rem; }
+  .r-inv-amt { font-size: clamp(1.6rem,3vw,2.4rem); font-weight: 200; color: #fff; line-height: 1; }
+  .r-inv-sub { font-size: 0.58rem; font-weight: 300; color: #555; margin-top: 0.15rem; }
+  .r-inv-divider { width: 100%; height: 1px; background: rgba(255,255,255,0.1); margin: 0.65rem 0; }
+
+  /* ─── S8 TÉRMINOS ─── */
+  #s8 { background: var(--off-white); justify-content: space-between; overflow-y: auto; }
+  .tc-header { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 1.4rem; }
+  .tc-title { font-size: clamp(1.6rem,3.2vw,2.8rem); font-weight: 200; color: var(--ink); }
+  .tc-vigencia { font-size: 0.6rem; font-weight: 300; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+  .tc-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0 3rem; flex: 1; }
+  .tc-item { padding: 0.65rem 0; border-bottom: 1px solid var(--line-light); display: flex; flex-direction: column; gap: 0.2rem; }
+  .tc-item-num { font-size: 0.52rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--muted); }
+  .tc-item-title { font-size: 0.73rem; font-weight: 600; color: var(--ink); }
+  .tc-item-body { font-size: 0.66rem; font-weight: 300; color: var(--muted); line-height: 1.6; }
+  .tc-footer { grid-column: 1/-1; border-top: 1px solid var(--line); padding-top: 0.9rem; display: flex; justify-content: space-between; align-items: center; margin-top: 0.4rem; }
+  .tc-footer-note { font-size: 0.6rem; font-weight: 300; color: var(--muted); }
+  .tc-sign { display: flex; gap: 3rem; }
+  .tc-sign-block { display: flex; flex-direction: column; gap: 0.3rem; align-items: center; }
+  .tc-sign-line { width: 120px; height: 1px; background: var(--ink); }
+  .tc-sign-label { font-size: 0.56rem; font-weight: 400; letter-spacing: 0.1em; text-transform: uppercase; color: var(--muted); }
+
+</style>
+</head>
+<body>
+<div class="deck">
+
+  <div class="tabs">
+    <button class="tab active" onclick="goTo(0)">Inicio</button>
+    <button class="tab" onclick="goTo(1)">Setup</button>
+    <button class="tab" onclick="goTo(4)">Iguala</button>
+    <button class="tab" onclick="goTo(7)">Resumen</button>
+    <button class="tab" onclick="goTo(8)">Términos</button>
+  </div>
+
+  <!-- ─── S0: PORTADA ─── -->
+  <div class="slide active" id="s0">
+    <div class="cover-deco"></div>
+    <div class="cover-rule"></div>
+    <p class="cover-eyebrow">Propuesta de servicios digitales</p>
+    <div>
+      <p class="cover-tag">Para Ramiro González · Junio 2026</p>
+      <img src="data:image/png;base64,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" alt="Maison Clair" class="logo-img" />
+      <p class="cover-sub">Lanzamos<br>tu marca.</p>
+      <p class="cover-slogan">Let your skin glow.</p>
+      <div class="cover-meta">
+        <button class="btn-opal" onclick="goTo(1)"><span>Ver propuesta →</span></button>
+        <div class="cover-info"><span>Sitio web + identidad digital</span><strong>One-time fee</strong></div>
+        <div class="cover-info"><span>Mantenimiento + redes sociales</span><strong>Iguala mensual</strong></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── S1: SETUP INTRO ─── -->
+  <div class="slide" id="s1">
+    <p class="lbl" style="color:#555">01 — Inicio del proyecto</p>
+    <div>
+      <p class="s1-price">Pago único · Sin contrato</p>
+      <p class="s1-big">$5,500<br><span style="font-size:0.38em;color:#444">MXN + IVA</span></p>
+    </div>
+    <div class="s1-grid">
+      <div class="s1-col"><p class="s1-col-title">Identidad digital</p><p class="s1-col-body">Benchmark de mercado, ecosistema de marca, mensajes clave y Brand Kit básico: paleta, tipografía y guía de aplicaciones.</p></div>
+      <div class="s1-col"><p class="s1-col-title">Sitio web en Shopify</p><p class="s1-col-body">Selección de plantilla, vestido con el branding de la marca, catálogo de productos con imágenes y configuración de páginas clave.</p></div>
+      <div class="s1-col"><p class="s1-col-title">Configuración técnica</p><p class="s1-col-body">Alta de pasarela de pago, conexión con dominio, correo transaccional y lanzamiento oficial del sitio.</p></div>
+    </div>
+  </div>
+
+  <!-- ─── S2: SETUP DETALLE ─── -->
+  <div class="slide" id="s2">
+    <p class="lbl">01 — Inicio del proyecto · Entregables</p>
+    <div class="s2-grid">
+      <div class="s2-col">
+        <p class="s2-col-title">Identidad digital</p>
+        <div class="s2-item"><p class="s2-item-title">Benchmark de mercado</p><p class="s2-item-desc">Análisis del entorno competitivo e identificación de territorios disponibles para la marca.</p></div>
+        <div class="s2-item"><p class="s2-item-title">Ecosistema de marca</p><p class="s2-item-desc">Valores, tono de comunicación, arquetipos y propuesta de posicionamiento.</p></div>
+        <div class="s2-item"><p class="s2-item-title">Mensajes clave</p><p class="s2-item-desc">Propuesta de valor, tagline y mensajes por canal. Ecoverso de la marca.</p></div>
+        <div class="s2-item"><p class="s2-item-title">Brand Kit básico</p><p class="s2-item-desc">Paleta de color oficial, selección tipográfica y guía de aplicaciones.</p></div>
+      </div>
+      <div class="s2-col">
+        <p class="s2-col-title">Sitio web Shopify</p>
+        <div class="s2-item"><p class="s2-item-title">Selección de plantilla</p><p class="s2-item-desc">Evaluación y propuesta de tema alineado al perfil premium de la marca.</p></div>
+        <div class="s2-item"><p class="s2-item-title">Vestido con branding</p><p class="s2-item-desc">Implementación de colores, tipografías e identidad visual en todo el sitio.</p></div>
+        <div class="s2-item"><p class="s2-item-title">Imágenes de producto</p><p class="s2-item-desc">Set de fotografías procesadas con IA: fondo blanco, modelo en uso y composición estética.</p></div>
+        <div class="s2-item"><p class="s2-item-title">Catálogo y páginas</p><p class="s2-item-desc">Alta de productos y configuración de home, colección, ficha, about, contacto y políticas.</p></div>
+      </div>
+      <div class="s2-col">
+        <p class="s2-col-title">Configuración técnica</p>
+        <div class="s2-item"><p class="s2-item-title">Pasarela de pago</p><p class="s2-item-desc">Alta y configuración de Shopify Payments o Conekta según preferencia.</p></div>
+        <div class="s2-item"><p class="s2-item-title">Dominio</p><p class="s2-item-desc">Conexión del dominio maisonclair.mx al sitio Shopify.</p></div>
+        <div class="s2-item"><p class="s2-item-title">Correo transaccional</p><p class="s2-item-desc">Plantillas de confirmación de pedido, envío y contacto.</p></div>
+        <div class="s2-item"><p class="s2-item-title">Lanzamiento</p><p class="s2-item-desc">Revisión final y apertura del sitio al público.</p></div>
+      </div>
+      <div class="s2-footer">
+        <div><p class="s2-footer-label">Inversión total · One-time fee</p><p class="s2-footer-note">Pago único al inicio · No incluye costo de plantilla Shopify premium si aplica</p></div>
+        <p class="s2-footer-price">$5,500 MXN + IVA</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── S3: CALENDARIO ─── -->
+  <div class="slide" id="s3">
+    <p class="lbl">01 — Inicio del proyecto · Calendario</p>
+    <div class="cal-header">
+      <p class="cal-title">Mes 1 → Lanzamiento → Iguala</p>
+      <span class="cal-note">Fecha de arranque por definir</span>
+    </div>
+    <div class="cal-timeline">
+      <div class="cal-connector"></div>
+      <div class="cal-opal-connector"></div>
+      <div class="cal-phase">
+        <div class="cal-dot"></div>
+        <p class="cal-week">Semana 1</p>
+        <p class="cal-phase-title">Identidad<br>digital</p>
+        <div class="cal-items">
+          <div class="cal-item">Benchmark de mercado</div>
+          <div class="cal-item">Ecosistema de marca</div>
+          <div class="cal-item">Mensajes clave</div>
+          <div class="cal-item">Brand Kit básico</div>
+        </div>
+      </div>
+      <div class="cal-phase">
+        <div class="cal-dot"></div>
+        <p class="cal-week">Semanas 2 – 3</p>
+        <p class="cal-phase-title">Sitio web<br>Shopify</p>
+        <div class="cal-items">
+          <div class="cal-item">Selección de plantilla</div>
+          <div class="cal-item">Vestido con branding</div>
+          <div class="cal-item">Imágenes de producto</div>
+          <div class="cal-item">Catálogo y páginas</div>
+        </div>
+      </div>
+      <div class="cal-phase">
+        <div class="cal-dot"></div>
+        <p class="cal-week">Semana 4</p>
+        <p class="cal-phase-title">Configuración<br>técnica</p>
+        <div class="cal-items">
+          <div class="cal-item">Pasarela de pago</div>
+          <div class="cal-item">Conexión de dominio</div>
+          <div class="cal-item">Correo transaccional</div>
+          <div class="cal-item">Lanzamiento del sitio</div>
+        </div>
+      </div>
+      <div class="cal-phase">
+        <div class="cal-dot cal-dot-opal"></div>
+        <p class="cal-week-opal">Mes 2 en adelante</p>
+        <p class="cal-phase-title-opal">Iguala<br>mensual</p>
+        <div class="cal-items">
+          <div class="cal-item-opal">Mantenimiento web</div>
+          <div class="cal-item-opal">Planeación + artes</div>
+          <div class="cal-item-opal">Contenido redes</div>
+          <div class="cal-item-opal">Reporte mensual</div>
+        </div>
+      </div>
+    </div>
+    <div class="cal-footer">
+      <div class="cal-footer-dot"></div>
+      <p class="cal-footer-text">El mes de la creación del sitio no incluye iguala · La iguala inicia el mes siguiente al lanzamiento</p>
+    </div>
+  </div>
+
+  <!-- ─── S4: IGUALA INTRO ─── -->
+  <div class="slide" id="s4">
+    <p class="lbl">02 — Iguala mensual</p>
+    <div class="s4-header">
+      <p class="s4-big">Iguala<br>Mensual</p>
+      <p class="s4-intro">Una vez lanzado el sitio, mantenemos la operación digital de Maison Clair: soporte técnico, actualización de contenidos y presencia activa en redes. Sin plazos forzosos.</p>
+    </div>
+    <div class="s4-pills">
+      <button class="pill on" onclick="goTo(5)"><span>Sitio web →</span></button>
+      <button class="pill" onclick="goTo(6)"><span>Redes sociales →</span></button>
+    </div>
+  </div>
+
+  <!-- ─── S5: MANTENIMIENTO WEB ─── -->
+  <div class="slide" id="s5">
+    <p class="lbl">02 — Iguala · Mantenimiento web</p>
+    <div class="two-col">
+      <div class="col-left">
+        <div><div class="opal-bar" style="margin-bottom:0.6rem"></div><p class="big-title">Sitio<br>Web</p></div>
+        <p class="sec-desc">Supervisión técnica, atención a incidencias y actualización de contenidos dentro de las horas contratadas.</p>
+        <div class="hrs-box">
+          <div><p class="hrs-box-label">Horas incluidas</p><p class="hrs-box-num">20 hrs / mes</p></div>
+          <p class="hrs-box-note">1 hora diaria de lunes a viernes</p>
+        </div>
+      </div>
+      <div class="col-right">
+        <div class="steps">
+          <div class="step"><span class="step-num">01</span><div><p class="step-title">Monitoreo del sitio</p><p class="step-desc">Revisión periódica del funcionamiento, velocidad de carga y disponibilidad.</p></div></div>
+          <div class="step"><span class="step-num">02</span><div><p class="step-title">Atención a incidencias</p><p class="step-desc">Resolución de errores técnicos, ajustes visuales y correcciones en el sitio.</p></div></div>
+          <div class="step"><span class="step-num">03</span><div><p class="step-title">Actualización de productos</p><p class="step-desc">Alta de nuevas esencias, presentaciones o bundles conforme se vayan lanzando.</p></div></div>
+          <div class="step"><span class="step-num">04</span><div><p class="step-title">Ajustes de copy y contenido</p><p class="step-desc">Modificaciones en textos, banners y secciones según necesidades del negocio.</p></div></div>
+          <div class="step"><span class="step-num">05</span><div><p class="step-title">Reporte mensual web</p><p class="step-desc">Informe de tráfico, comportamiento de usuarios y horas utilizadas.</p></div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── S6: CONTENIDO REDES ─── -->
+  <div class="slide" id="s6">
+    <p class="lbl">02 — Iguala · Contenido para redes sociales</p>
+    <div class="content-grid">
+      <div class="content-col">
+        <p class="content-col-label">Entregables del mes</p>
+        <div class="c-row"><div class="c-row-left"><p class="c-name">Publicaciones estáticas</p><p class="c-detail">Con animaciones básicas en algunas de ellas</p></div><span class="badge">8–10 piezas</span></div>
+        <div class="c-row"><div class="c-row-left"><p class="c-name">Carruseles</p><p class="c-detail">Hasta 3 por mes</p></div><span class="badge">Hasta 3</span></div>
+        <div class="c-row"><div class="c-row-left"><p class="c-name">Adaptaciones a stories</p><p class="c-detail">Formato vertical de las piezas del mes</p></div><span class="badge">4–5 piezas</span></div>
+        <div class="c-row" style="border-bottom:none"><div class="c-row-left"><p class="c-name">Reporte mensual de redes</p><p class="c-detail">Alcance, engagement y recomendaciones</p></div><span class="badge">Incluido</span></div>
+      </div>
+      <div class="content-col">
+        <p class="content-col-label">Proceso mensual</p>
+        <div class="c-row"><p class="c-name">Planeación de temáticas</p></div>
+        <div class="c-row"><div class="c-row-left"><p class="c-name">Generación de copy</p><p class="c-detail">Texto, pies de foto y hashtags</p></div></div>
+        <div class="c-row"><div class="c-row-left"><p class="c-name">Diseño de artes</p><p class="c-detail">Maquetación visual alineada al Brand Kit</p></div></div>
+        <div class="c-row"><div class="c-row-left"><p class="c-name">Presentación para aprobación</p><p class="c-detail">Propuesta con fechas sugeridas antes de publicar</p></div></div>
+        <div class="note-block">
+          <div><p class="note-block-title">Publicación y community</p><p class="note-block-desc">La publicación y gestión de comentarios queda a cargo de Ramiro o su equipo.</p></div>
+          <p class="note-block-tag">No incluido<br>en la iguala</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── S7: RESUMEN ─── -->
+  <div class="slide" id="s7">
+    <div style="display:flex;justify-content:space-between;align-items:flex-start">
+      <p class="lbl" style="color:#555">Resumen de la propuesta</p>
+      <p style="font-size:0.56rem;font-weight:300;color:#555">Todos los precios + IVA</p>
+    </div>
+    <div class="r-grid">
+      <div class="r-col">
+        <p class="r-col-label">01 — One-time fee · Mes 1</p>
+        <div class="r-row"><p class="r-svc">Benchmark + ecosistema de marca + mensajes clave</p><p class="r-price">Incluido</p></div>
+        <div class="r-row"><p class="r-svc">Brand Kit básico (paleta, tipografía, guía)</p><p class="r-price">Incluido</p></div>
+        <div class="r-row"><p class="r-svc">Diseño y maquetación del sitio en Shopify</p><p class="r-price">Incluido</p></div>
+        <div class="r-row"><p class="r-svc">Set de imágenes de producto procesadas con IA</p><p class="r-price">Incluido</p></div>
+        <div class="r-row"><p class="r-svc">Configuración técnica y lanzamiento</p><p class="r-price">Incluido</p></div>
+        <div class="r-subtotal"><p class="r-subtotal-label">Total one-time fee</p><p class="r-subtotal-price">$5,500 <span style="font-size:0.5em;color:#555">MXN + IVA</span></p></div>
+      </div>
+      <div class="r-col">
+        <p class="r-col-label">02 — Iguala mensual · Mes 2 en adelante</p>
+        <div class="r-row"><p class="r-svc">Soporte y mantenimiento web · 20 hrs/mes</p><p class="r-price">Incluido</p></div>
+        <div class="r-row"><p class="r-svc">8–10 publicaciones · hasta 3 carruseles · 4–5 stories</p><p class="r-price">Incluido</p></div>
+        <div class="r-row"><p class="r-svc">Planeación + copy + diseño de artes</p><p class="r-price">Incluido</p></div>
+        <div class="r-row"><p class="r-svc">Reporte mensual web + redes sociales</p><p class="r-price">Incluido</p></div>
+        <div class="r-subtotal"><p class="r-subtotal-label">Total mensual</p><p class="r-subtotal-price">$2,500 <span style="font-size:0.5em;color:#555">MXN + IVA</span></p></div>
+      </div>
+      <div class="r-bottom">
+        <div>
+          <p class="lbl" style="color:#555;margin-bottom:0.35rem">Consideraciones</p>
+          <p class="r-bottom-note">La iguala no tiene plazo forzoso — puedes pausar o cancelar cuando lo consideres necesario. Se recomienda mantener activa hasta fin de año para aprovechar las temporadas de mayor conversión: <span class="hl">Buen Fin, Black Friday, Cyber Monday y Navidades.</span></p>
+        </div>
+        <div class="r-inv-block">
+          <div class="r-inv-start">
+            <p class="r-inv-lbl">Inversión inicial · Mes 1</p>
+            <p class="r-inv-amt">$5,500</p>
+            <p class="r-inv-sub">MXN + IVA · Pago único</p>
+          </div>
+          <div class="r-inv-divider"></div>
+          <div>
+            <p class="r-inv-lbl">Iguala mensual · A partir del Mes 2</p>
+            <p class="r-inv-amt">$2,500</p>
+            <p class="r-inv-sub" style="line-height:1.55">MXN + IVA · Sin plazo forzoso<br>Inicia el mes siguiente al lanzamiento</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── S8: TÉRMINOS Y CONDICIONES ─── -->
+  <div class="slide" id="s8">
+    <div class="tc-header">
+      <p class="tc-title">Términos y condiciones</p>
+      <p class="tc-vigencia">Vigencia 30 días · Junio 2026</p>
+    </div>
+    <div class="tc-grid">
+      <div class="tc-item">
+        <p class="tc-item-num">01</p>
+        <p class="tc-item-title">Alcance del servicio</p>
+        <p class="tc-item-body">Los servicios están definidos en esta propuesta. Cualquier solicitud adicional fuera del alcance acordado se cotizará por separado antes de su ejecución.</p>
+      </div>
+      <div class="tc-item">
+        <p class="tc-item-num">05</p>
+        <p class="tc-item-title">Plazos y materiales del cliente</p>
+        <p class="tc-item-body">El calendario propuesto depende de la entrega oportuna de materiales, accesos y aprobaciones por parte del cliente. Retrasos atribuibles al cliente pueden extender los tiempos sin penalización al prestador.</p>
+      </div>
+      <div class="tc-item">
+        <p class="tc-item-num">02</p>
+        <p class="tc-item-title">Forma de pago</p>
+        <p class="tc-item-body">One-time fee: pago total dentro de los primeros 5 días hábiles del inicio del proyecto. Iguala mensual: los primeros 5 días hábiles de cada mes. Métodos: transferencia bancaria o efectivo.</p>
+      </div>
+      <div class="tc-item">
+        <p class="tc-item-num">06</p>
+        <p class="tc-item-title">Propiedad intelectual</p>
+        <p class="tc-item-body">Una vez cubierto el pago total del one-time fee, todos los entregables son propiedad de Maison Clair. El prestador se reserva el derecho de incluir el proyecto en su portafolio profesional.</p>
+      </div>
+      <div class="tc-item">
+        <p class="tc-item-num">03</p>
+        <p class="tc-item-title">Revisiones incluidas</p>
+        <p class="tc-item-body">El one-time fee contempla hasta dos rondas de revisiones por entregable. Ajustes adicionales o cambios de alcance serán cotizados y acordados por separado.</p>
+      </div>
+      <div class="tc-item">
+        <p class="tc-item-num">07</p>
+        <p class="tc-item-title">Confidencialidad</p>
+        <p class="tc-item-body">Ambas partes se comprometen a mantener confidencial la información sensible del negocio compartida durante la relación de trabajo.</p>
+      </div>
+      <div class="tc-item">
+        <p class="tc-item-num">04</p>
+        <p class="tc-item-title">Cancelación de la iguala</p>
+        <p class="tc-item-body">El servicio mensual puede cancelarse en cualquier momento con un aviso mínimo de 15 días naturales. El mes vigente al momento de la cancelación se cobra en su totalidad.</p>
+      </div>
+      <div class="tc-item">
+        <p class="tc-item-num">08</p>
+        <p class="tc-item-title">Responsabilidades de plataforma</p>
+        <p class="tc-item-body">El prestador no es responsable de interrupciones causadas por Shopify, el proveedor de dominio ni la pasarela de pago. El cliente es responsable de mantener vigentes sus suscripciones de plataforma.</p>
+      </div>
+      <div class="tc-footer">
+        <p class="tc-footer-note">Esta propuesta tiene vigencia de 30 días a partir de la fecha indicada · Todos los precios expresados en MXN + IVA</p>
+        <div class="tc-sign">
+          <div class="tc-sign-block"><div class="tc-sign-line"></div><p class="tc-sign-label">Prestador de servicios</p></div>
+          <div class="tc-sign-block"><div class="tc-sign-line"></div><p class="tc-sign-label">Ramiro González · Maison Clair</p></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- NAV -->
+  <div class="nav">
+    <button class="nav-btn" onclick="prev()">←</button>
+    <div id="dots"></div>
+    <button class="nav-btn" onclick="next()">→</button>
+  </div>
+</div>
+
+<script>
+  const TOTAL = 9;
+  let cur = 0;
+  const tabRanges = [
+    { slides: [0] },
+    { slides: [1,2,3] },
+    { slides: [4,5,6] },
+    { slides: [7] },
+    { slides: [8] }
+  ];
+  function buildDots() {
+    const c = document.getElementById('dots');
+    c.innerHTML = '';
+    for (let i = 0; i < TOTAL; i++) {
+      const d = document.createElement('div');
+      d.className = 'nav-dot' + (i === cur ? ' active' : '');
+      d.onclick = () => goTo(i);
+      c.appendChild(d);
+    }
+  }
+  function updateTabs() {
+    document.querySelectorAll('.tab').forEach((t,i) => {
+      t.classList.toggle('active', tabRanges[i].slides.includes(cur));
+    });
+  }
+  function goTo(n) {
+    document.getElementById('s'+cur).classList.remove('active');
+    cur = Math.max(0, Math.min(TOTAL-1, n));
+    document.getElementById('s'+cur).classList.add('active');
+    buildDots(); updateTabs();
+  }
+  function next() { goTo(cur+1); }
+  function prev() { goTo(cur-1); }
+  document.addEventListener('keydown', e => {
+    if (e.key==='ArrowRight'||e.key==='ArrowDown') next();
+    if (e.key==='ArrowLeft'||e.key==='ArrowUp') prev();
+  });
+  let tx = 0;
+  document.addEventListener('touchstart', e => tx = e.touches[0].clientX);
+  document.addEventListener('touchend', e => {
+    const dx = tx - e.changedTouches[0].clientX;
+    if (Math.abs(dx) > 40) dx > 0 ? next() : prev();
+  });
+  buildDots();
+</script>
+</body>
+</html>
