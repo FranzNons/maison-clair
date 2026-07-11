@@ -190,6 +190,17 @@
   .wa-left { width: 30%; display: flex; flex-direction: column; padding-top: 2.2rem; }
   .wa-logo { height: 36px; width: auto; align-self: flex-start; max-width: 200px; object-fit: contain; margin: 1.2rem 0 1rem; }
   .wa-tags { display: flex; flex-wrap: wrap; gap: 0.4rem; margin-bottom: 1.6rem; }
+  .wa-marks { display: flex; flex-direction: column; gap: 0.5rem; padding: 0.9rem 0; margin-bottom: 1.4rem; border-top: 1px solid var(--line-light); border-bottom: 1px solid var(--line-light); }
+  .wa-mark { display: flex; align-items: center; justify-content: space-between; gap: 0.8rem; }
+  .wa-mark-lbl { font-size: 0.6rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--muted); }
+  .wa-mark-val { display: flex; align-items: center; gap: 0.55rem; }
+  .wa-stars { font-size: 0.85rem; letter-spacing: 2px; color: var(--ink); line-height: 1; }
+  .wa-stars .off { color: #d8d8d8; }
+  .wa-stars .half { background: linear-gradient(90deg, var(--ink) 50%, #d8d8d8 50%); -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text; }
+  .wa-segs { display: flex; gap: 3px; }
+  .wa-seg { width: 15px; height: 5px; background: #e3e3e3; }
+  .wa-seg.on { background: var(--ink); }
+  .wa-mark-txt { font-size: 0.58rem; font-weight: 300; color: var(--muted); min-width: 72px; text-align: right; letter-spacing: 0.04em; }
   .wa-tag { font-size: 0.54rem; font-weight: 500; letter-spacing: 0.12em; text-transform: uppercase; color: var(--muted); border: 1px solid var(--line); padding: 0.25rem 0.65rem; border-radius: 99px; }
   .wa-sec-lbl { font-size: 0.56rem; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink); margin-bottom: 0.5rem; }
   .wa-body { font-size: 0.88rem; font-weight: 300; line-height: 1.75; color: #555; margin-bottom: 1.6rem; }
@@ -1265,58 +1276,73 @@
 
   /* ─── ANÁLISIS WEB: 9 marcas, diapos generadas ─── */
   const WEB_BRANDS = [
-    { k:'rhode', n:'Rhode', url:'https://rhodeskin.com', dom:'rhodeskin.com', video:'videos/rhode.mp4',
+    { k:'rhode', n:'Rhode', url:'https://rhodeskin.com', dom:'rhodeskin.com', video:'videos/rhode.mp4', cef:5, cdc:3, iac:5,
       tags:['Shopify','Premium','Catálogo reducido','EUA · 2022'],
       pers:'Rhode comunica desde la disciplina. Pocos productos hero, mucho espacio en blanco y fichas que abren con lo que cada producto hace, no con copy de marketing. La escasez es parte del sistema: lanzamientos que se agotan y listas de espera que fabrican deseo antes de vender.',
       learn:'El catálogo mínimo no es una limitación: es el argumento. Darle a cada producto el espacio de un protagonista hace que dos SKUs se lean como una decisión curada, no como una carencia. MC debe presentar sus dos productos como un sistema completo.' },
-    { k:'aetheria', n:'Aetheria', url:'https://aetheriabeau.com', dom:'aetheriabeau.com', video:'videos/aetheria.mp4',
+    { k:'aetheria', n:'Aetheria', url:'https://aetheriabeau.com', dom:'aetheriabeau.com', video:'videos/aetheria.mp4', cef:3, cdc:5, iac:2,
       tags:['Shopify','Premium','6 elixires','MX'],
       pers:'Aetheria construye un universo de "elixires" con naming francés y promesas de bienestar consciente. Bundles como pieza central, badges de confianza y un blog que sostiene el tono ritual. Es el competidor que aparecerá junto a MC en el feed de la misma clienta.',
       learn:'El nicho premium-consciente mexicano ya tiene un ocupante elocuente — pero su identidad visual es suave y genérica. El diferenciador de MC no puede ser el discurso wellness: tiene que ser una estética inconfundible que Aetheria no pueda imitar.' },
-    { k:'zetuvit', n:'Zetüvit', url:'https://zetuvit.com', dom:'zetuvit.com', video:'videos/zetuvit.mp4',
+    { k:'zetuvit', n:'Zetüvit', url:'https://zetuvit.com', dom:'zetuvit.com', video:'videos/zetuvit.mp4', cef:2.5, cdc:1, iac:1,
       tags:['Shopify','Mid','6 SKUs','MX'],
       pers:'Zetüvit reclama el "skinimalismo inteligente" con catálogo mínimo y una tesis de color explícita. Distribución híbrida: D2C más farmacias y retail. Su web, sin embargo, convive con banners de descuento y productos agotados que erosionan el discurso minimalista.',
       learn:'Reclamar un territorio con palabras no basta: hay que sostenerlo con disciplina visual y operativa. MC puede ganar el minimalismo sin declararlo — ejecutándolo en cada pantalla, sin promociones que lo contradigan.' },
-    { k:'fmiller', n:'F. Miller', url:'https://fmillerskincare.com', dom:'fmillerskincare.com', video:'videos/fmiller.mp4',
+    { k:'fmiller', n:'F. Miller', url:'https://fmillerskincare.com', dom:'fmillerskincare.com', video:'videos/fmiller.mp4', cef:4, cdc:3, iac:4,
       tags:['Shopify','Premium','Catálogo reducido','Canadá · 2014'],
       pers:'F. Miller vende esenciales: una roster corta, estética apothecary de líneas finas y una atmósfera que se extiende hasta playlists propias de la marca. El sitio se siente menos como una tienda y más como un mundo al que se entra.',
       learn:'La atmósfera es acumulativa: tipografía, ritmo, silencio y detalles laterales construyen marca con muy pocos elementos. MC puede construir mundo — el Ecoverso — sin necesitar más catálogo.' },
-    { k:'orris', n:'ORRIS Paris', url:'https://orrisparis.com', dom:'orrisparis.com', video:'videos/orris.mp4',
+    { k:'orris', n:'ORRIS Paris', url:'https://orrisparis.com', dom:'orrisparis.com', video:'videos/orris.mp4', cef:4, cdc:3, iac:4,
       tags:['Shopify','Luxury','Catálogo mínimo','Francia'],
       pers:'ORRIS eleva un jabón a objeto de lujo: blancos y grises sutiles, hero spa-like y un journal con dirección de arte escultural que convierte cada producto en pieza de galería.',
       learn:'La fotografía editorial es el multiplicador del precio percibido. El empaque de MC merece tratarse como objeto de arte en la web — composición, luz y escena — no como foto de catálogo.' },
-    { k:'aesop', n:'Aesop', url:'https://www.aesop.com', dom:'aesop.com', video:'videos/aesop.mp4',
+    { k:'aesop', n:'Aesop', url:'https://www.aesop.com', dom:'aesop.com', video:'videos/aesop.mp4', cef:5, cdc:5, iac:5,
       tags:['Shopify','Luxury','Catálogo amplio','Australia · 1987'],
       pers:'Aesop es el estándar del restraint: tipografía editorial, cero ruido promocional y contenido que asesora como lo haría su tienda física. La coherencia entre espacio físico y digital es total.',
       learn:'El lujo silencioso escala: un sistema tipográfico y de espaciado disciplinado sostiene igual 2 que 200 productos. Las reglas del brandbook de MC deben nacer pensadas para escalar.' },
-    { k:'ordinary', n:'The Ordinary', url:'https://theordinary.com', dom:'theordinary.com', video:'videos/ordinary.mp4',
+    { k:'ordinary', n:'The Ordinary', url:'https://theordinary.com', dom:'theordinary.com', video:'videos/ordinary.mp4', cef:4.5, cdc:5, iac:5,
       tags:['Shopify','Entry','Catálogo amplio','Canadá · 2016'],
       pers:'The Ordinary convirtió la lista de ingredientes en identidad: nombres de activo, precios visibles, estética de laboratorio. Transparencia radical como propuesta de valor — a costa de la calidez.',
       learn:'La transparencia genera confianza pero congela la emoción. MC puede adoptar la claridad de activos (ceramidas, phyto-A) sin heredar la frialdad clínica: esa es la línea que no se cruza.' },
-    { k:'seasons', n:'Seasons', url:'https://www.seasonsmexico.com', dom:'seasonsmexico.com', video:'videos/seasons.mp4',
+    { k:'seasons', n:'Seasons', url:'https://www.seasonsmexico.com', dom:'seasonsmexico.com', video:'videos/seasons.mp4', cef:2.5, cdc:1, iac:4,
       tags:['Mass – Mid','Catálogo amplio','D2C + Retail','MX'],
       pers:'Seasons opera a volumen: kits como puerta de entrada, comunidad "Glow Army", promociones constantes y distribución agresiva. Es la prueba de que el glow ya es conversación masiva en México.',
       learn:'El apetito por el glow en México está probado a escala. MC no necesita educar el deseo — necesita ofrecer la versión premium de ese deseo, la que Seasons no puede dar sin romper su modelo.' },
-    { k:'ahal', n:'Ahal', url:'https://www.ahal.mx', dom:'ahal.mx', video:'videos/ahal.mp4',
+    { k:'ahal', n:'Ahal', url:'https://www.ahal.mx', dom:'ahal.mx', video:'videos/ahal.mp4', cef:3, cdc:3, iac:3,
       tags:['Shopify','Mid','Catálogo amplio','MX'],
       pers:'Ahal es el techo del código herbolaria: biocosmética con activos mexicanos, certificaciones y una ejecución consolidada tras años de operación. Hace bien todo lo que su territorio exige — y por eso mismo no puede salir de él.',
       learn:'Los códigos saturados premian la ejecución, pero ya no diferencian. La lección de Ahal es de rigor — certificaciones, claridad de activos, consistencia — no de estética.' },
-    { k:'reve', n:'Rêve Dermatologique', url:'https://revedermatologique.com', dom:'revedermatologique.com', video:'videos/reve.mp4',
+    { k:'reve', n:'Rêve Dermatologique', url:'https://revedermatologique.com', dom:'revedermatologique.com', video:'videos/reve.mp4', cef:3, cdc:4, iac:1,
       tags:['Mid tier','Dermo-clínico','MX','Catálogo reducido'],
       pers:'Rêve construye desde el código dermo-clínico con estética contenida — grises con amarillo de acento, tipografía sans y foco en tratamiento sobre ritual. Menos frío que The Ordinary pero conservador en tono: comunica autoridad clínica sin bajar el precio a rango entrada.',
       learn:'El código dermo-clínico se puede ejecutar con calidez si el sistema visual lo permite. Pero al premium mexicano ya le sobra ese código — MC debe evitarlo aunque su formulación lo permita: la diferenciación por activos ya está tomada.' },
-    { k:'acure', n:'Acure México', url:'https://acure.mx', dom:'acure.mx', video:'videos/acure.mp4', lh:96,
+    { k:'acure', n:'Acure México', url:'https://acure.mx', dom:'acure.mx', video:'videos/acure.mp4', cef:4.5, cdc:3, iac:2, lh:96,
       tags:['WordPress','Mid tier','Certificaciones USDA','US · Distribución MX'],
       pers:'Acure vende desde certificaciones — USDA Organic, Leaping Bunny, Neutralidad Climática — presentadas como sellos hero. Catálogo grande organizado por triple taxonomía (línea, producto, tipo de piel). No es marca mexicana propia sino distribución local de una marca US con posicionamiento natural-vegano.',
       learn:'Los sellos de trust funcionan como argumento visual antes que como texto. MC puede tomar prestada esa gramática — badges de "Hecho en México", "Vegano", "Cruelty-free" — sin adoptar el maximalismo de catálogo ni el código natural saturado.' },
-    { k:'lamer', n:'La Mer', url:'https://cremedelamer.com', dom:'cremedelamer.com', video:'videos/lamer.mp4',
-      tags:['Luxury','Heritage 1965','Miracle Broth','Global corporativo'],
-      pers:'La Mer es el techo del lujo corporativo en skincare. Empaques con acabados matte-pearl, paleta marfil-arena, tipografía serif clásica y el Miracle Broth como storytelling propietario. Precios que no se discuten porque el mundo construido alrededor del producto es demasiado denso.',
-      learn:'El lujo no se argumenta con datos — se construye con atmósfera. Cada elemento (fotografía, tipografía, silencios) debe pesar. MC no puede jugar a La Mer, pero puede tomar el principio: la disciplina de no romper el mundo con promociones o urgencias.' }
+    { k:'clinique', n:'Clinique', url:'https://www.clinique.com.mx', dom:'clinique.com.mx', video:'videos/clinique.mp4', cef:3.5, cdc:4, iac:1,
+      tags:['Prestige corporativo','Dermo-clínico','Global · 1968','Catálogo amplio'],
+      pers:'Clinique es el techo corporativo del código dermo-clínico: blanco quirúrgico, su azul icónico como única concesión cromática, y el legado "allergy tested, 100% fragrance free" como promesa fundacional. Hace 50 años productizó el ritual con su sistema de 3 pasos — arquitectura comercial que sigue vendiendo la rutina completa, no el frasco suelto.',
+      learn:'Dos lecciones opuestas. La evitable: el blanco clínico al máximo nivel sigue siendo frío — es el código que MC esquiva. La aprovechable: productizar el ritual (el "sistema" como unidad de venta) es la jugada que MC puede replicar con su dúo — sérum + crema como ritual mínimo con nombre propio.' }
   ];
 
   const deckEl = document.querySelector('.deck');
   const navEl = document.querySelector('.nav');
+  const MARK_LVL = ['', 'Baja', 'Media baja', 'Media', 'Media alta', 'Alta'];
+  function markStars(n) {
+    let h = '';
+    for (let i = 1; i <= 5; i++) {
+      if (n >= i) h += '<span>★</span>';
+      else if (n >= i - 0.5) h += '<span class="half">★</span>';
+      else h += '<span class="off">★</span>';
+    }
+    return h;
+  }
+  function markSegs(n) {
+    let h = '';
+    for (let i = 1; i <= 5; i++) h += '<div class="wa-seg' + (i <= n ? ' on' : '') + '"></div>';
+    return h;
+  }
   WEB_BRANDS.forEach((b, i) => {
     const idx = 6 + i;
     const s = document.createElement('div');
@@ -1328,6 +1354,11 @@
         '<p class="lbl">03 — Benchmark · Análisis web · ' + num + ' / ' + String(WEB_BRANDS.length).padStart(2,'0') + '</p>' +
         '<img class="wa-logo" src="' + LOGOS[b.k] + '" alt="' + b.n + '"' + (b.lh ? ' style="height:' + b.lh + 'px"' : '') + '>' +
         '<div class="wa-tags">' + b.tags.map(t => '<span class="wa-tag">' + t + '</span>').join('') + '</div>' +
+        '<div class="wa-marks">' +
+          '<div class="wa-mark"><span class="wa-mark-lbl">Fotografía</span><span class="wa-mark-val"><span class="wa-stars">' + markStars(b.cef) + '</span></span></div>' +
+          '<div class="wa-mark"><span class="wa-mark-lbl">Carga de copy</span><span class="wa-mark-val"><span class="wa-segs">' + markSegs(b.cdc) + '</span><span class="wa-mark-txt">' + MARK_LVL[b.cdc] + '</span></span></div>' +
+          '<div class="wa-mark"><span class="wa-mark-lbl">Invitación a comprar</span><span class="wa-mark-val"><span class="wa-segs">' + markSegs(b.iac) + '</span><span class="wa-mark-txt">' + MARK_LVL[b.iac] + '</span></span></div>' +
+        '</div>' +
         '<p class="wa-sec-lbl">Personalidad</p>' +
         '<p class="wa-body">' + b.pers + '</p>' +
         '<div class="wa-learn"><div class="opal-bar"></div><p class="wa-sec-lbl">Aprendizaje</p><p class="wa-learn-body">' + b.learn + '</p></div>' +
