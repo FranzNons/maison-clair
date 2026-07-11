@@ -282,6 +282,15 @@
   .ph-read .opal-bar { margin-top: 0.35rem; flex-shrink: 0; }
   .ph-read p { font-size: 0.82rem; font-weight: 300; line-height: 1.6; color: #555; max-width: 720px; }
   .ph-read p b { font-weight: 500; color: var(--ink); }
+  .ph-bands { flex: 1; display: flex; flex-direction: column; gap: 10px; margin: 1.4rem 0 0.9rem; min-height: 0; }
+  .ph-band { flex: 1; display: flex; gap: 10px; min-height: 0; }
+  .ph-shot { position: relative; min-width: 0; overflow: hidden; background: var(--off-white); border: 0.5px solid var(--line); cursor: zoom-in; }
+  .ph-shot img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .ph-shot-tag { position: absolute; left: 0; bottom: 0; max-width: 100%; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; padding: 0.3rem 0.7rem; background: rgba(255,255,255,0.88); font-size: 0.54rem; font-weight: 500; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink); }
+  .lightbox { position: fixed; inset: 0; background: rgba(8,8,8,0.94); display: none; flex-direction: column; align-items: center; justify-content: center; gap: 1.1rem; z-index: 400; cursor: zoom-out; }
+  .lightbox.open { display: flex; }
+  .lightbox img { max-width: 92vw; max-height: 82vh; object-fit: contain; }
+  .lightbox p { color: #999; font-size: 0.68rem; font-weight: 400; letter-spacing: 0.18em; text-transform: uppercase; font-family: 'Jost', sans-serif; }
 
   /* ─── S22: INTRO ECOVERSO ─── */
   #s25 { background: var(--ink); color: #fff; padding-bottom: 4rem; }
@@ -1492,31 +1501,126 @@
       learn: 'El casting no es solo estética: <b>es política de marca</b>. Elegir a quién mostrar en la piel es elegir a quién se le habla y a quién no.'
     },
     {
-      k: 'redes',
+      k: 'sesion',
       idx: '04',
-      title: 'Redes sociales',
-      intro: 'La marca fuera de su sitio, en formato vertical, compitiendo con contenido que no controla. Aquí se demuestra si el sistema visual aguanta salir de casa.',
-      learn: 'Si el sistema visual solo funciona con la maquetación del sitio, <b>no es un sistema</b>. Redes es la prueba de estrés — y el canal principal de descubrimiento de MC.'
+      title: 'Sesión de producto',
+      intro: 'El producto fuera del estudio: en escena, con dirección de arte, luz intencionada y contexto. Donde el packshot se convierte en fotografía de marca.',
+      learn: 'La sesión es donde el ecoverso se vuelve tangible: superficie, luz y atmósfera comunican el territorio antes que cualquier palabra. <b>La sesión opalite de MC será la prueba de fuego del territorio iridiscente.</b>'
     }
   ];
 
-  /* Editable: cuando tengas las imágenes, añade objetos { brand, file, note } al array de cada categoría */
-  const PHOTO_DATA = { hero: [], producto: [], modelo: [], redes: [] };
+  /* Editable: por categoría, arreglo de filas; cada foto: { brand, file, note, ar (proporción ancho/alto) } */
+  const PHOTO_DATA = {
+    hero: [
+      [
+        { brand:'Ahal',         file:'img/hero/ahal.jpg',       note:'', ar:1.5  },
+        { brand:'Aesop',        file:'img/hero/aesop.jpg',      note:'', ar:2.0  },
+        { brand:'Seasons',      file:'img/hero/seasons.jpg',    note:'', ar:1.91 }
+      ],
+      [
+        { brand:'Rhode',        file:'img/hero/rhode.jpg',      note:'', ar:1.78 },
+        { brand:'Aetheria',     file:'img/hero/aetheria.jpg',   note:'', ar:1.78 },
+        { brand:'The Ordinary', file:'img/hero/ordinary-1.png', note:'01', ar:1.78 }
+      ],
+      [
+        { brand:'Euphoria',     file:'img/hero/euphoria.jpg',   note:'', ar:3.13 },
+        { brand:'The Ordinary', file:'img/hero/ordinary-2.jpg', note:'02', ar:1.78 },
+        { brand:'The Ordinary', file:'img/hero/ordinary-3.png', note:'03', ar:1.78 }
+      ]
+    ],
+    producto: [
+      [
+        { brand:'Rhode',        file:'img/producto/rhode.jpg',      note:'', ar:1.2 },
+        { brand:'Acure',        file:'img/producto/acure.jpg',      note:'', ar:1.0 },
+        { brand:'F. Miller',    file:'img/producto/fmiller.jpg',    note:'', ar:1.0 },
+        { brand:'ORRIS',        file:'img/producto/orris.jpg',      note:'', ar:1.0 },
+        { brand:'Aesop',        file:'img/producto/aesop.jpg',      note:'', ar:1.0 },
+        { brand:'Aetheria',     file:'img/producto/aetheria-1.jpg', note:'', ar:1.0 },
+        { brand:'Euphoria',     file:'img/producto/euphoria.jpg',   note:'', ar:1.0 },
+        { brand:'The Ordinary', file:'img/producto/ordinary-2.png', note:'', ar:1.0 },
+        { brand:'Zetüvit',      file:'img/producto/zetuvit.jpg',    note:'', ar:0.75 }
+      ],
+      [
+        { brand:'Seasons',      file:'img/producto/seasons.jpg',    note:'', ar:1.0 },
+        { brand:'Ahal',         file:'img/producto/ahal.jpg',       note:'', ar:1.0 },
+        { brand:'Teia',         file:'img/producto/teia-1.jpg',     note:'', ar:1.0 },
+        { brand:'Teia',         file:'img/producto/teia-2.jpg',     note:'Cualidades', ar:1.0 },
+        { brand:'The Ordinary', file:'img/producto/ordinary-1.jpg', note:'Cualidades', ar:1.0 },
+        { brand:'Aetheria',     file:'img/producto/aetheria-2.jpg', note:'Cualidades', ar:0.8 },
+        { brand:'Clinique',     file:'img/producto/clinique-1.jpg', note:'', ar:0.8 },
+        { brand:'Clinique',     file:'img/producto/clinique-2.jpg', note:'Cualidades', ar:0.8 },
+        { brand:'Clinique',     file:'img/producto/clinique-3.jpg', note:'Ingredientes', ar:0.8 },
+        { brand:'La Mer',       file:'img/producto/lamer.jpg',      note:'', ar:0.8 }
+      ]
+    ],
+    modelo: [
+      [
+        { brand:'Teia',         file:'img/modelo/teia-1.jpg',    note:'Aplicación', ar:1.5 },
+        { brand:'Rhode',        file:'img/modelo/rhode-2.jpg',   note:'02', ar:1.2 },
+        { brand:'Seasons',      file:'img/modelo/seasons.jpg',   note:'', ar:1.0 },
+        { brand:'Aetheria',     file:'img/modelo/aetheria.jpg',  note:'', ar:1.0 },
+        { brand:'Acure',        file:'img/modelo/acure.jpg',     note:'', ar:0.97 },
+        { brand:'Rhode',        file:'img/modelo/rhode-3.jpg',   note:'03', ar:0.92 },
+        { brand:'ORRIS',        file:'img/modelo/orris-1.jpg',   note:'', ar:0.8 },
+        { brand:'F. Miller',    file:'img/modelo/fmiller-1.jpg', note:'', ar:0.8 },
+        { brand:'Clinique',     file:'img/modelo/clinique.jpg',  note:'', ar:0.8 }
+      ],
+      [
+        { brand:'Teia',         file:'img/modelo/teia-2.jpg',    note:'Modelos', ar:1.4 },
+        { brand:'Ahal',         file:'img/modelo/ahal.jpg',      note:'', ar:1.0 },
+        { brand:'Zetüvit',      file:'img/modelo/zetuvit-3.jpg', note:'03', ar:1.0 },
+        { brand:'Rhode',        file:'img/modelo/rhode-1.jpg',   note:'01', ar:0.92 },
+        { brand:'ORRIS',        file:'img/modelo/orris-2.jpg',   note:'En uso', ar:0.8 },
+        { brand:'F. Miller',    file:'img/modelo/fmiller-2.jpg', note:'02', ar:0.8 },
+        { brand:'La Mer',       file:'img/modelo/lamer.jpg',     note:'', ar:0.8 },
+        { brand:'Zetüvit',      file:'img/modelo/zetuvit-2.jpg', note:'02', ar:0.75 },
+        { brand:'Zetüvit',      file:'img/modelo/zetuvit-1.jpg', note:'Aplicación', ar:0.67 }
+      ]
+    ],
+    sesion: [
+      [
+        { brand:'Aesop',        file:'img/sesion/aesop.jpg',      note:'', ar:1.78 },
+        { brand:'Acure',        file:'img/sesion/acure-2.jpg',    note:'02', ar:1.5 },
+        { brand:'Ahal',         file:'img/sesion/ahal.jpg',       note:'', ar:1.5 },
+        { brand:'Teia',         file:'img/sesion/teia.jpg',       note:'', ar:1.25 },
+        { brand:'Clinique',     file:'img/sesion/clinique-2.jpg', note:'02', ar:1.0 },
+        { brand:'Euphoria',     file:'img/sesion/euphoria-3.jpg', note:'03', ar:0.67 }
+      ],
+      [
+        { brand:'Acure',        file:'img/sesion/acure-1.jpg',    note:'01', ar:1.87 },
+        { brand:'Rhode',        file:'img/sesion/rhode.jpg',      note:'', ar:0.92 },
+        { brand:'ORRIS',        file:'img/sesion/orris.jpg',      note:'', ar:0.83 },
+        { brand:'Aetheria',     file:'img/sesion/aetheria.jpg',   note:'', ar:0.8 },
+        { brand:'Clinique',     file:'img/sesion/clinique-1.jpg', note:'01', ar:0.8 },
+        { brand:'F. Miller',    file:'img/sesion/fmiller.jpg',    note:'', ar:0.75 },
+        { brand:'Euphoria',     file:'img/sesion/euphoria-1.jpg', note:'01', ar:0.73 },
+        { brand:'Euphoria',     file:'img/sesion/euphoria-2.jpg', note:'02', ar:0.67 }
+      ]
+    ]
+  };
 
   PHOTO_CATS.forEach((cat, i) => {
     const idx = 21 + i;
     const s = document.createElement('div');
     s.className = 'slide ph';
     s.id = 's' + idx;
-    let gridHtml = '';
-    for (let j = 0; j < 6; j++) {
-      const item = PHOTO_DATA[cat.k][j];
-      const brand = item ? item.brand : '—';
-      const note = item ? (item.note || '') : 'Por asignar';
-      const file = item ? item.file : 'img/' + cat.k + '/(marca).jpg';
-      const bg = item ? ('background-image:url(' + item.file + ');') : '';
-      const ph = item ? '' : '<div class="ph-placeholder"><span class="ph-placeholder-t">Imagen pendiente</span><span class="ph-placeholder-f">' + file + '</span></div>';
-      gridHtml += '<figure class="ph-cell"><div class="ph-img" style="' + bg + '">' + ph + '</div><figcaption class="ph-tag"><span class="ph-tag-brand">' + brand + '</span><span class="ph-tag-note">' + note + '</span></figcaption></figure>';
+    const rows = PHOTO_DATA[cat.k];
+    let bodyHtml = '';
+    if (rows && rows.length) {
+      bodyHtml = '<div class="ph-bands">' + rows.map(row =>
+        '<div class="ph-band">' + row.map(p =>
+          '<figure class="ph-shot" style="flex-grow:' + p.ar + '" data-full="' + p.file + '" data-cap="' + p.brand + (p.note ? ' · ' + p.note : '') + '">' +
+            '<img src="' + p.file + '" alt="' + p.brand + '" loading="lazy">' +
+            '<figcaption class="ph-shot-tag">' + p.brand + (p.note ? ' · ' + p.note : '') + '</figcaption>' +
+          '</figure>'
+        ).join('') + '</div>'
+      ).join('') + '</div>';
+    } else {
+      let gridHtml = '';
+      for (let j = 0; j < 6; j++) {
+        gridHtml += '<figure class="ph-cell"><div class="ph-img"><div class="ph-placeholder"><span class="ph-placeholder-t">Imagen pendiente</span><span class="ph-placeholder-f">img/' + cat.k + '/(marca).jpg</span></div></div><figcaption class="ph-tag"><span class="ph-tag-brand">—</span><span class="ph-tag-note">Por asignar</span></figcaption></figure>';
+      }
+      bodyHtml = '<div class="ph-grid">' + gridHtml + '</div>';
     }
     s.innerHTML =
       '<p class="lbl">04 — Comparativa fotográfica · ' + cat.idx + ' / 04</p>' +
@@ -1524,11 +1628,26 @@
         '<p class="ph-big">' + cat.title + '</p>' +
         '<p class="ph-intro">' + cat.intro + '</p>' +
       '</div>' +
-      '<div class="ph-grid">' + gridHtml + '</div>' +
+      bodyHtml +
       '<div class="ph-read"><div class="opal-bar"></div><p>' + cat.learn + '</p></div>';
     deckEl.insertBefore(s, navEl);
   });
   updateNav(); updateTabs();
+
+  /* Lightbox: doble clic para ampliar */
+  const lb = document.createElement('div');
+  lb.className = 'lightbox';
+  lb.innerHTML = '<img alt=""><p></p>';
+  document.body.appendChild(lb);
+  document.querySelectorAll('.ph-shot').forEach(f => {
+    f.addEventListener('dblclick', () => {
+      lb.querySelector('img').src = f.dataset.full;
+      lb.querySelector('p').textContent = f.dataset.cap;
+      lb.classList.add('open');
+    });
+  });
+  lb.addEventListener('click', () => lb.classList.remove('open'));
+  document.addEventListener('keydown', e => { if (e.key === 'Escape') lb.classList.remove('open'); });
 
   /* ─── ECOVERSO: constelaciones ─── */
   const ECOVERSO_PILLARS = [
